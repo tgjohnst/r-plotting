@@ -1,0 +1,90 @@
+---
+title: "Making cumulative plots - example"
+author: "Timothy Johnstone"
+output: html_document
+---
+
+Here is a quick tutorial on how to make a cumulative plot in R.
+
+I'll assume you've imported your data into a data frame as usual.
+For the purposes of this tutorial, we will use a sample dataset built into R which contains EU Stock market data for 4 different indices
+
+Let's take a look at that dataset:
+```{r}
+head(EuStockMarkets)
+```
+
+For cumulative plotting, the key function we use is ecdf(). This calculates the empirical cumulative distribution function for a given set of input numbers. More help can be found by typing **?ecdf**
+
+To give you an idea of what the plot output looks like for this function, let's try a simple single-set plot looking at the DAX stock index:
+
+```{r}
+plot(ecdf(EuStockMarkets[,"DAX"]))
+```
+
+You will notice this gives a nice looking cumulative plot with smooth lines. 
+
+If your dataset is smaller, the plot might default to a more stepwise look rather than smooth lines. These can be changed in the plotting parameters. For example, using another smaller dataframe with flower characteristics:
+
+```{r}
+head(iris)
+plot(ecdf(iris$Sepal.Length))
+```
+
+We can adjust the plot to be more visually pleasing by resizing the points to be tiny
+
+```{r}
+plot(ecdf(iris$Sepal.Length),
+     cex=0)
+```
+
+What if we want to break down different sets and compare them? I'll give an example with both datasets. The important thing to remember is to size the x axis on the first **plot** call so that all the datasets will be fully displayed, otherwise the plot will default just to fit that first set.
+
+Here is the plot with the tiny iris dataset, this time comparing different species
+```{r}
+plot(ecdf(iris[iris$Species=="setosa",]$Sepal.Length),
+     xlim=c(4,8),
+     col="green")
+lines(ecdf(iris[iris$Species=="virginica",]$Sepal.Length),
+      col="blue")
+lines(ecdf(iris[iris$Species=="versicolor",]$Sepal.Length),
+      col="red")
+```
+
+Of course, these datasets are small (only 50 observations per species) and not pretty to look at. Let's try it again with the stock exchange data
+
+```{r}
+plot(ecdf(EuStockMarkets[,"DAX"]),
+     xlim=c(1500,8500),
+     col="seashell2")
+lines(ecdf(EuStockMarkets[,"SMI"]),
+     col="khaki")
+lines(ecdf(EuStockMarkets[,"CAC"]),
+     col="purple")
+lines(ecdf(EuStockMarkets[,"FTSE"]),
+     col="red")
+```
+
+We can play with other parameters too for a more complete plot. For example, **pty** will force a plot to be square, and we can label the axes and plot using **xlab** and **ylab** and **main**. We also add a legend.
+
+```{r}
+par(pty='s')  # force the plot to be square before we start
+
+plot(ecdf(EuStockMarkets[,"DAX"]),
+     xlim=c(1500,8500),
+     xlab="Closing price (Euro)",
+     ylab="Cumulative Proportion",
+     main="Stock price distributions on EU exchanges from 1991-1998",
+     col="seashell2")
+lines(ecdf(EuStockMarkets[,"SMI"]),
+     col="khaki")
+lines(ecdf(EuStockMarkets[,"CAC"]),
+     col="purple")
+lines(ecdf(EuStockMarkets[,"FTSE"]),
+     col="red")
+
+legend('bottomright', 
+       legend=c("DAX","SMI","CAC","FTSE"),  # text in the legend
+       col=c("seashell2","khaki","purple","red"),  # point colors
+       pch=15)  # specify the point type to be a square
+```
